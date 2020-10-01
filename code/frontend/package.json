@@ -1,0 +1,90 @@
+{
+	"name": "frontend",
+	"version": "0.1.0",
+	"private": true,
+	"dependencies": {
+		"@babel/plugin-proposal-class-properties": "^7.8.3",
+		"@babel/plugin-transform-runtime": "^7.9.0",
+		"@material-ui/core": "^4.9.10",
+		"@material-ui/icons": "^4.9.1",
+		"@testing-library/dom": "^6.15.0",
+		"@testing-library/jest-dom": "^4.2.4",
+		"@testing-library/react": "^9.3.2",
+		"@testing-library/user-event": "^7.1.2",
+		"enzyme": "^3.11.0",
+		"enzyme-adapter-react-16": "^1.15.2",
+		"enzyme-to-json": "^3.4.4",
+		"react": "^16.12.0",
+		"react-dom": "^16.12.0",
+		"react-router-dom": "^5.1.2",
+		"react-scripts": "^3.4.1",
+		"typescript": "^3.8.3"
+	},
+	"scripts": {
+		"start": "react-scripts start",
+		"build": "react-scripts build",
+		"test": "jest --verbose",
+		"test:watch": "jest --watchAll --verbose",
+		"test:coverage": "jest --verbose --coverage",
+		"lint": "eslint src/ --ext .js,.jsx",
+		"eject": "react-scripts eject"
+	},
+	"eslintConfig": {
+		"extends": "react-app"
+	},
+	"browserslist": {
+		"production": [
+			">0.2%",
+			"not dead",
+			"not op_mini all"
+		],
+		"development": [
+			"last 1 chrome version",
+			"last 1 firefox version",
+			"last 1 safari version"
+		]
+	},
+	"jest": {
+		"moduleNameMapper": {
+			"\\.(jpg|jpeg|png|gif|eot|otf|webp|svg|ttf|woff|woff2|mp4|webm|wav|mp3|m4a|aac|oga)$": "<rootDir>/assetsTransformer.js",
+			"\\.(css|less)$": "<rootDir>/assetsTransformer.js"
+		}
+	},
+	"babel": {
+		"presets": [
+			"@babel/env",
+			"@babel/react"
+		],
+		"plugins": [
+			"@babel/plugin-proposal-class-properties"
+		]
+	},
+	"devDependencies": {
+		"@babel/preset-env": "^7.9.5",
+		"@types/react": "^16.9.34",
+		"@typescript-eslint/eslint-plugin": "^2.29.0",
+		"@typescript-eslint/parser": "^2.29.0",
+		"babel-core": "^6.26.3",
+		"babel-eslint": "10.x",
+		"babel-loader": "^8.1.0",
+		"babel-polyfill": "^6.26.0",
+		"babel-preset-es2015": "^6.24.1",
+		"babel-preset-stage-0": "^6.24.1",
+		"eslint": "^6.8.0",
+		"eslint-config-airbnb": "^18.1.0",
+		"eslint-config-prettier": "^6.11.0",
+		"eslint-config-react": "^1.1.7",
+		"eslint-config-react-app": "5.2.1",
+		"eslint-plugin-flowtype": "4.0.0",
+		"eslint-plugin-import": "2.x",
+		"eslint-plugin-jsx-a11y": "6.x",
+		"eslint-plugin-prettier": "^3.1.3",
+		"eslint-plugin-react": "^7.19.0",
+		"eslint-plugin-react-hooks": "2.0.0",
+		"husky": "^4.2.5",
+		"jest": "^25.5.0",
+		"lint-staged": "^10.1.7",
+		"prettier": "^2.0.5",
+		"sinon": "^9.0.1"
+	}
+}

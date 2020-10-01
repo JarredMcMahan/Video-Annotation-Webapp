@@ -1,0 +1,139 @@
+import React from "react";
+import Atn from "../src/components/Atn";
+import Adapter from "enzyme-adapter-react-16";
+import { shallow, configure, mount } from "enzyme";
+import sinon from "sinon";
+
+configure({ adapter: new Adapter() });
+
+let sandbox;
+let component;
+let thecanvas;
+let peerConnectionConfig;
+
+beforeEach(() => {
+  sandbox = sinon.createSandbox();
+
+  thecanvas = { width: 0, height: 0 };
+  React.createRef = sandbox.stub()
+    .returns({ current: thecanvas });    
+  
+  component = new Atn();
+  component.setState = function(state) {
+    this.state = {...this.state, ...state};
+  };
+  
+  window.RTCPeerConnection = function(config) {
+    peerConnectionConfig = config;
+    
+    this.onicecandidate = function() {};
+    this.ontrack = function() {};
+    this.addTransceiver = sandbox.stub();
+    this.setLocalDescription = sandbox.stub();
+    this.createOffer = sandbox.stub()
+      .returns(Promise.resolve('--some description--'));
+  }
+});
+
+afterEach(() => sandbox.restore());
+
+it("Atn.js constructor initializes state", () => {
+  expect(component.state.lineThickness).toEqual(4);
+  expect(component.state.canvas_function).toEqual('draw');
+  
+  expect(component.canvas.current).toEqual(thecanvas);
+});
+
+it('design componentDidMount', () => {
+  const keyPressStub = sandbox.stub(Atn.prototype, 'keyPress');
+  const createIntervalStub = sandbox.stub(Atn.prototype, 'createInterval');
+  
+  component.createPeerConnection = sandbox.stub()
+    .returns('--pc--');
+  
+  component.componentDidMount();
+  
+  expect(keyPressStub.called).toBe(true);
+  expect(createIntervalStub.called).toBe(true);
+  expect(component.canvas.current.width).toEqual(component.state.videoWidth);
+  expect(component.canvas.current.height).toEqual(component.state.videoHeight);
+
+  expect(component.createPeerConnection.called).toBe(true);
+
+  expect(component.state.videoStatus).toEqual('Playing');
+  expect(component.state.pc).toEqual('--pc--');
+});
+
+it('createPeerConnection returns a peer connection', () => {
+  component.onIceCandidate = sandbox.stub();
+  component.getRemoteVideo = sandbox.stub();
+  
+  const peerConnection = component.createPeerConnection();
+  
+  expect(peerConnectionConfig).toEqual({ iceServers: [{ urls: ["stun:stun.l.google.com:19302"] }] });
+  
+  peerConnection.onicecandidate('--anevent--');
+  expect(component.onIceCandidate.args[0]).toEqual([peerConnection, '--anevent--']);
+
+  peerConnection.ontrack('--anevent2--');
+  expect(component.getRemoteVideo.args[0]).toEqual(['--anevent2--']);
+  
+  expect(peerConnection.addTransceiver.args[0]).toEqual(["video", { direction: "sendrecv" }]);
+  
+  expect(peerConnection.createOffer.called).toBe(true);
+  
+  return new Promise((resolve, reject) => {
+    setImmediate(() => {
+      expect(peerConnection.setLocalDescription.args[0]).toEqual(['--some description--']);
+      resolve();
+    });
+  });
+});
+
+describe('timer related tests', () => {
+  let sandbox;
+  let component;
+  let clock;
+
+  beforeEach(() => {
+    sandbox = sinon.createSandbox();
+    clock = sandbox.useFakeTimers();
+
+    component = new Atn();
+    component.setState = function(state) {
+      this.state = {...this.state, ...state};
+    };
+  });
+  
+  afterEach(() => sandbox.restore());
+  
+  it('createInterval calls setInterval', () => {
+    component.onInterval = sandbox.stub();
+
+    component.createInterval();
+    expect(component.onInterval.called).toBe(false);
+    clock.tick(1);
+    expect(component.onInterval.called).toBe(true);  
+    expect(component.intervalId.toString()).toEqual(Object.keys(clock.timers)[0]);
+  });
+  
+  it('componentDidUnmount unregisters from the timer', () => {
+    component.createInterval();
+    component.componentWillUnmount();
+
+    expect(clock.timers).toEqual({});
+  });
+});
+
+describe('Atn renders', () => {
+  it('Atn renders', () => {
+    const wrapper = shallow(<Atn />);
+    
+//    expect(wrapper.find('canvas'));
+  });
+});
+
+
+
+
+

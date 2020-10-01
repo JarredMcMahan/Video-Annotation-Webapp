@@ -1,0 +1,65 @@
+# Project Backlog for ATN
+
+## Iteration One
+* Capture data is the USB video capture device, which uses the UVC (https://en.wikipedia.org/wiki/USB_video_device_class), using ffmpeg convert the stream to .ivf which then can be processed by go [Clayton]
+* Write a minimal web page (React.JS) that plays a given MP4 file. This will hook into the backend service that is constructing an MP4 from the camera stream. [Ervin]
+* Write unit tests for backend [Clayton]
+* Generate code coverage report for backend [Clayton]
+* Write unit tests for front end
+* Generate code coverage report for frontend
+* Set up Jenkins
+
+-----------------------
+
+## Iteration Two
+* Patch pion/WebRTC [Clayton]
+* Increase test coverage to 95%+ on backend [Clayton]
+* Set up Jenkins
+* Move to version 2.2.0 of webrtc and un-depend on Clayton’s fork [Clayton]
+* Minimal React.JS to connect to backend [Ervin]
+* Create session description offer and display it [Ervin]
+* Accept a video stream and play it [Ervin]
+	* At first I think it will be okay to have us just copy and paste the SDP while we figure out how to do it better.
+* Work on test coverage for frontend
+
+-----------------------
+
+## Iteration Three
+* Refactor main function in server to improve code coverage [Clayton]
+* Unit tests for react using Jtest and improve code coverage of frontend [Jarred]
+* Frontend
+	* Main component needs debugging, will run into promise error with setRemoteDescription [Ervin]
+	* Implementing List view [Jarred]
+		* Ability for user to create/edit/modify lists [Jarred]
+		* CSS List layout [Jarred]
+  	* ~~Setup layout for the page [Justin Talictic]~~
+	* CSS Styling (maybe adding some animations or something) [Jarred, Ian]
+	* ~~Canvas with mouse input for drawing [Ian]~~
+		* ~~Multiple color choices [Ian]~~
+		* ~~Clear button to erase drawing [Ian, Ervin]~~
+* Setting up jenkins [Clayton, Jarred, Ervin]
+* Freezing the video stream for markup [Ervin, Ian]
+* ~~Self host ReactJS stuff with the Go app [Clayton]~~
+
+-----------------------
+
+## Iteration Four
+### Moved From Prior Iteration
+* Self host ReactJS stuff with the Go app (dependent on auto key exchange) [Clayton]
+* Canvas with mouse input for drawing [Ian, Ervin]
+	* Multiple color choices [Ian]
+	* Clear button to erase drawing [Ian, Ervin]
+* Setup layout for the page [Justin Talictic]
+* Frontend code coverage increase/refactor [Ervin, Ian]
+### New Items
+* HTTP Server to send SDP key between client and server [Ervin]
+
+-----------------------
+
+## Stretch Goals
+* Optimizing the ffmpeg stream record to minimize the delay
+* Recording a session
+* Testing application over the internet instead of lan 
+* Undo button for last mouse drag
+* Text annotations in drawing canvas
+* Make List editable and elements moveable 

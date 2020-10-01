@@ -1,0 +1,545 @@
+import React, { Component } from "react";
+import { Button, Grid, TextField, ButtonGroup, createMuiTheme, ThemeProvider } from "@material-ui/core";
+import {Create, History, FontDownload, Delete, PlayArrow, Pause } from "@material-ui/icons";
+import "./Atn.css";
+
+const PC_CONFIG = { iceServers: [{ urls: ["stun:stun.l.google.com:19302"] }] };
+
+class Atn extends Component {
+	constructor(props) {
+	  super(props);
+	  
+    this.state = {
+    	pc: null,
+    	localSessionDescription: "",
+    	remoteSessionDescription: "",
+    	video: null,
+    	videoStatus: "",
+    	color: "#ff0000",
+    	lineThickness: 4,
+    	playPauseText: "Pause",
+    	mouseDown: false,
+    	drawXprev:-1,
+    	drawYprev:-1,
+    	mouseX:0,
+    	mouseY:0,
+    	icon: false,
+    	canvas_function:"draw",
+    	canvas_font_size:30,
+    	canvas_font:"Arial",
+    	clickX:-1,
+    	clickY:-1,
+    	canvas_text_current:""
+    };
+    
+    this.canvas = React.createRef();
+	}
+	
+	componentDidMount() {
+	  this.keyPress();
+	  this.createInterval();
+	  
+	  this.canvas.current.width = this.state.videoWidth;
+	  this.canvas.current.height = this.state.videoHeight;
+
+	  this.setState({ videoStatus: 'Playing', pc: this.createPeerConnection() });
+	}
+
+	createPeerConnection() {
+		const peerConnection = new RTCPeerConnection(PC_CONFIG);
+		
+		peerConnection.onicecandidate = event => this.onIceCandidate(peerConnection, event);
+		peerConnection.ontrack = event => this.getRemoteVideo(event);
+		peerConnection.addTransceiver('video', { direction: 'sendrecv' });
+		peerConnection.createOffer()
+		.then(peerConnection.setLocalDescription);
+		
+		return peerConnection;
+	}
+	
+	componentWillUnmount() {
+		if (this.state.videoStatus !== "") {
+			this.pauseVideo();
+			this.setState({ videoStatus: "Paused" });
+		}
+		clearInterval(this.intervalId);
+	}
+
+	createInterval() {
+		const intervalUpdateMS = 1;
+		
+		this.intervalId = setInterval(() => this.onInterval(), intervalUpdateMS);
+	}
+  
+	canvasUndo(){
+		alert("undo called");
+	}
+	
+	canvasClear() {
+		const canvas = this.refs.canvas;
+		const ctx = canvas.getContext("2d");
+		ctx.clearRect(0, 0, canvas.width, canvas.height);
+		this.canvasTool("draw");
+	}
+	
+	canvasTool(tool){
+		
+		this.setState({
+			canvas_function:tool,
+			canvas_text_current:""
+		});
+		if(!tool==="text"){
+			this.setState({ 
+				clickX:-1,
+				clickY:-1
+			});
+		}
+	}
+	
+	canvasColor(color) {
+		this.setState({ color: color });
+	}
+	
+	showToolbar() {
+		document.getElementById("canvas_control_container").style="height:80px;";
+		let tool_buttons=document.getElementsByClassName("tool_button");
+		for (let i = 0; i < tool_buttons.length; i++){
+		  tool_buttons[i].style="opacity:1;";
+		}
+		document.getElementById("canvas_color_button_container").style="opacity:1;";
+		
+		
+	}
+	
+	hideToolbar() {
+		document.getElementById("canvas_control_container").style="height:0;";
+		let tool_buttons=document.getElementsByClassName("tool_button");
+		for (let i = 0; i < tool_buttons.length; i++){
+		  tool_buttons[i].style="opacity:0;";
+		}
+		document.getElementById("canvas_color_button_container").style="opacity:0;";
+	}
+	
+	onInterval(){
+		const canvas = this.refs.canvas;
+		const ctx = canvas.getContext("2d");
+		let offset_x = canvas.getBoundingClientRect().left;
+		let offset_y_canvas = canvas.getBoundingClientRect().top;
+		let offset_y_scroll = window.pageYOffset;
+		let offset_y = offset_y_canvas + offset_y_scroll;
+		if(this.state.canvas_function==="draw"){
+			if(this.state.mouseDown && this.state.videoStatus === "Paused"){
+				let drawX=this.state.mouseX - offset_x;
+				let drawY=this.state.mouseY - offset_y;
+				if(this.state.drawXprev<0||this.state.drawYprev<0){
+					ctx.fillStyle = this.state.color;
+					let line_thicc=this.state.lineThickness;
+					ctx.fillRect(
+						drawX,
+						drawY,
+						line_thicc,
+						line_thicc
+					);
+				}
+				else{
+					ctx.beginPath();
+					ctx.strokeStyle = this.state.color;
+					ctx.lineWidth=this.state.lineThickness;
+					ctx.moveTo(this.state.drawXprev,this.state.drawYprev);
+					ctx.lineTo(drawX,drawY);
+					ctx.stroke();
+				}
+				this.setState({ 
+					drawXprev: drawX,
+					drawYprev: drawY
+				});
+			}
+		}
+		else if(this.state.canvas_function==="text"){
+			ctx.fillStyle = this.state.color;
+			ctx.font = this.state.canvas_font_size+"px "+this.state.canvas_font;
+			ctx.fillText(
+				this.state.canvas_text_current, 
+				this.state.clickX-offset_x, 
+				this.state.clickY-offset_y
+			); 
+		}
+	}
+	
+	enterPressed(){
+		this.setState({ 
+			clickX:-1,
+			clickY:-1,
+			canvas_text_current:""
+		});
+	}
+	
+	keyCode2ch(key){
+		return(String.fromCharCode(key));
+	}
+	
+	isKeyAlpha(key){
+		return(key>=65&&key<=90);
+	}
+	
+	keyPress () {
+		document.onkeydown = function(evt) {
+			evt = evt || window.event;
+			if(evt.keyCode==13){
+				this.enterPressed();
+			}
+			if (evt.ctrlKey && evt.keyCode == 90) {
+				this.canvasUndo();
+			}
+			else if(this.isKeyAlpha(evt.keyCode)&&this.state.clickX>=0){
+				
+				var input_ch=this.keyCode2ch(evt.keyCode);
+				var text=this.state.canvas_text_current+input_ch;
+				this.setState({ canvas_text_current:text});
+				
+				
+			}
+		}.bind(this);
+	}
+	
+	mouseDown() {
+		this.setState({ 
+			mouseDown: true
+		});
+		if(this.state.canvas_function==="text"){
+			let event = window.event;
+			this.setState({ 
+				clickX:event.clientX,
+				clickY:event.clientY,
+				canvas_text_current:""
+			});
+		}
+		
+	}
+
+	mouseUp() {
+		this.setState({ 
+			mouseDown: false,
+			drawXprev:-1,
+			drawYprev:-1
+		});
+	
+	}
+
+	mouseMove() {
+		let event = window.event;
+		this.setState({
+			mouseX:event.clientX,
+			mouseY:event.clientY
+		});
+	}
+
+  playPauseVideo() {
+    if (this.state.videoStatus === "Playing") {
+      let { video } = this.state;
+		  video.current.pause();
+
+		  const canvas = this.refs.canvas;
+		  canvas.width = video.current.offsetWidth;
+		  canvas.height = video.current.offsetHeight;
+		  this.setState({
+			  video,
+			  videoStatus: "Paused"
+      });
+      this.showToolbar();
+      this.setState({ playPauseText: "Play" });
+    } else {
+      let { video } = this.state;
+		  this.canvasClear();
+		  video.current.play();
+		  this.setState({
+			  video,
+			  videoStatus: "Playing"
+      });
+      this.hideToolbar();
+      this.setState({ playPauseText: "Pause" });
+    }
+  }
+
+  handleClick() {
+    const { icon } = this.state
+    this.setState({ icon: !icon })   
+  }
+
+	getRemoteVideo = event => {
+		let { video } = this.state;
+		let remoteVideo = video.current;
+		if (remoteVideo.srcObject !== event.streams[0]) {
+			remoteVideo.srcObject = event.streams[0];
+		}
+		this.setState({
+			video,
+			videoStatus: "Playing"
+		});
+	};
+
+	onIceCandidate(pc, event) {
+		if (event.candidate === null) {
+			let l = btoa(JSON.stringify(pc.localDescription));
+			this.setState({ localSessionDescription: l });
+		}
+	};
+
+	// Cleaning functions, will remove after able to properly test with backend
+	// onIceStateChange = (pc, event) => {
+	// 	console.log("ICE state:", pc.iceConnectionState);
+	// };
+
+	start() {
+		let { remoteSessionDescription, pc } = this.state;
+		if (remoteSessionDescription === "") {
+			return alert("Remote Session Description must not be empty");
+		}
+		pc.createOffer()
+			.then(
+				pc.setRemoteDescription(
+					new RTCSessionDescription(JSON.parse(atob(remoteSessionDescription)))
+				)
+			)
+			.catch(e => console.log(e));
+		this.setState({ pc });
+	}
+
+	copyText = event => {
+		this.localSDTextArea.select();
+		document.execCommand("copy");
+		event.target.focus();
+	};
+
+	updateDesc = event => {
+		this.setState({ remoteSessionDescription: event.target.value });
+  };
+
+	
+	render() {
+		const {
+			video,
+			localSessionDescription,
+			remoteSessionDescription
+    } = this.state;
+    
+    const theme = createMuiTheme({
+      palette: {
+        primary: {
+          // Purple and green play nicely together.
+          main: '#008cba',
+        },
+        secondary: {
+          // This is green.A700 as hex.
+          main: '#11cb5f',
+        },
+      },
+    });
+
+		return (
+		
+      <Grid 
+        container 
+        spacing ={3}
+      >
+			<div className="Atn">
+        <Grid item>
+				  <div id="media_container" >
+					  <div id="canvas_container">
+						  <canvas
+							  id="canvas"
+							  ref={ this.canvas }
+							  onMouseMove={() => this.mouseMove()}
+							  onMouseDown={() => this.mouseDown()}
+							  onMouseUp={() => this.mouseUp()}
+							  onMouseLeave={() => this.mouseUp()}
+						  />
+					  </div>
+					  <div id="video">
+						  <video
+							  id="video-element"
+							  className="video"
+							  ref={video}
+							  autoPlay
+							  muted
+							  src="https://assets.polestar.com/video/test/polestar-1_09.mp4"
+						  />
+					  </div>
+				  </div>
+        </Grid>
+        <Grid item>
+				<div id="canvas_control_container">
+					<div id="canvas_function_button_container">
+						<button
+							id="canvas_undo_button"
+							className="tool_button tool_function_button"
+							onClick={() => this.canvasUndo()}
+						>
+							<History/>
+						</button>
+						<button
+							id="canvas_text_button"
+							className="tool_button tool_function_button"
+							onClick={() => this.canvasTool("text")}
+						>
+							<FontDownload/>
+						</button>
+						<button
+							id="canvas_draw_button"
+							className="tool_button tool_function_button"
+							onClick={() => this.canvasTool("draw")}
+						>
+							<Create/>
+						</button>
+						<button
+							id="canvas_clear_button"
+							className="tool_button tool_function_button"
+							onClick={() => this.canvasClear()}
+						>
+							<Delete/>
+						</button>
+					</div>
+					<div id="canvas_color_button_container">
+						<button
+							id="canvas_red_button"
+							className="tool_button tool_color_button"
+							onClick={() => this.canvasColor("#ff0000")}
+						></button>
+						<button
+							id="canvas_orange_button"
+							className="tool_button tool_color_button"
+							onClick={() => this.canvasColor("#ff8800")}
+						></button>
+						<button
+							id="canvas_yellow_button"
+							className="tool_button tool_color_button"
+							onClick={() => this.canvasColor("#ffff00")}
+						></button>
+						<button
+							id="canvas_green_button"
+							className="tool_button tool_color_button"
+							onClick={() => this.canvasColor("#00ff00")}
+						></button>
+						<button
+							id="canvas_cyan_button"
+							className="tool_button tool_color_button"
+							onClick={() => this.canvasColor("#00ffff")}
+						></button>
+						<button
+							id="canvas_blue_button"
+							className="tool_button tool_color_button"
+							onClick={() => this.canvasColor("#0000ff")}
+						></button>
+						<button
+							id="canvas_purple_button"
+							className="tool_button tool_color_button"
+							onClick={() => this.canvasColor("#cc00ff")}
+						></button>
+						<button
+							id="canvas_white_button"
+							className="tool_button tool_color_button"
+							onClick={() => this.canvasColor("#ffffff")}
+						></button>
+						<button
+							id="canvas_gray_button"
+							className="tool_button tool_color_button"
+							onClick={() => this.canvasColor("#888888")}
+						></button>
+						<button
+							id="canvas_black_button"
+							className="tool_button tool_color_button"
+							onClick={() => this.canvasColor("#000000")}
+						></button>
+					</div>
+				</div>
+				<Button
+					  variant="contained"
+					  color="primary"
+									id="pause_button"
+									className="playPauseButton"
+									onClick={() => {
+						this.playPauseVideo();
+						this.handleClick();
+					  }}>
+									{this.state.playPauseText}
+					  {this.state.icon ? <PlayArrow /> : <Pause />}
+				</Button>
+        </Grid>
+        <Grid item>
+        <Grid 
+          container
+          justify="center"
+        >
+				<div>
+          <Grid id="sd_input_section"
+            container
+            spacing={3}
+          >
+            <Grid item>
+					<TextField
+            label="local SD"
+            variant="outlined"
+            multiline
+            rows={4}
+            rowsMax="4"
+						ref={localSDTextArea => (this.localSDTextArea = localSDTextArea)}
+						className="localSD sd_input"
+						value={localSessionDescription}
+						readOnly={true}
+					/>
+          </Grid>
+          <Grid item>
+					<TextField
+            label="Input"
+            variant="outlined"
+            multiline
+            rows={4}
+            rowsMax="4"
+						className="remoteSessionDescription sd_input"
+						value={remoteSessionDescription}
+						onChange={this.updateDesc}
+						readOnly={false}
+					/>
+          </Grid>
+          </Grid>
+          <Grid 
+            container
+            justify="center"
+            spacing={3}
+            >
+            <ThemeProvider theme={theme}>
+            <Grid item>
+						<Button
+              variant="contained"
+              color="primary"
+							className="copyButton"
+							onClick={this.copyText}
+						>
+							Copy Session Description
+						</Button>
+            </Grid>
+            <Grid item>
+						<Button
+              variant="contained"
+              color="primary"
+							className="startButton"
+							onClick={() => this.start()}
+						>
+							Start Session
+						</Button>
+            </Grid>
+            <Grid item>
+						
+            </Grid>
+            </ThemeProvider>
+					</Grid>
+				</div>
+        </Grid>
+        </Grid>
+			</div>
+      </Grid>
+		);
+	}
+}
+
+export default Atn;

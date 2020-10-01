@@ -1,0 +1,170 @@
+html {
+	background: #dddddd;
+}
+.Atn {
+	margin-left: 100px;
+	text-align: center;
+}
+.sd_input {
+	width: 500px;
+	min-height: 75px;
+	border-radius: 7px;
+	border: 2px solid #008cba;
+	margin-bottom: 10px;
+	margin-right: 15px;
+	margin-left: 15px;
+	transition-timing-function: ease-in;
+}
+.sd_input:hover {
+	border: 2px solid #4caf50;
+	transition: border 0.4s;
+}
+.main_button {
+	border-radius: 25px;
+	background-color: #008cba;
+	border: 1px solid #008cba;
+	color: white;
+	padding: 15px 32px;
+	margin-left: 5px;
+	margin-right: 5px;
+	text-align: center;
+	text-decoration: none;
+	display: inline-block;
+	font-size: 16px;
+	transition-timing-function: ease-in;
+}
+.main_button:hover {
+	transition: border 0.2s;
+	transition: background-color 0.2s;
+	background-color: #4caf50;
+	border: 1px solid #4caf50;
+	cursor: pointer;
+}
+#media_container {
+	margin: 0 auto;
+	margin-top: 50px;
+	position: relative;
+	border: 2px solid #008cba;
+	background: #008cba;
+	border-radius: 0 0 25px 25px;
+}
+#canvas_container {
+	position: absolute;
+	left: 50%;
+}
+#canvas {
+	position: relative;
+	left: -50%;
+	z-index: 10;
+	background-color: rgba(0, 0, 0, 0);
+}
+#video {
+	margin-bottom: 0;
+	padding-bottom: 0;
+}
+.tool_button {
+	opacity: 0;
+	transition: opacity 0.3s;
+	transition-timing-function: ease-in;
+}
+.tool_button:hover {
+	cursor: pointer;
+}
+
+.tool_function_button {
+	border-radius: 80px;
+	background: none;
+	border: none;
+	color: #ffffff;
+	margin: 0 20px 0 20px;
+	padding: 0;
+	text-align: center;
+	text-decoration: none;
+	display: inline-block;
+	font-size: 20px;
+	transition: transform 0.3s;
+	transform: scale(1.85);
+}
+.tool_function_button:hover {
+	transform: scale(2.2);
+}
+.tool_color_button {
+	border: none;
+	height: 40px;
+	width: 40px;
+	transition: width 0.2s;
+	padding: 0px;
+	margin: 0px;
+}
+.tool_color_button:active {
+	width: 60px;
+}
+.tool_color_button:focus {
+	width: 60px;
+}
+#canvas_control_container {
+	background: #008cba;
+	border: 2x solid #008cba;
+	border-radius: 0 0 25px 25px;
+	margin-top: -20px;
+	padding-top: 0px;
+	height: 0;
+	transition: height 0.5s;
+	padding-right: 15px;
+	padding-left: 15px;
+}
+#canvas_function_button_container {
+	padding: 0;
+	margin: 0;
+	margin-right: 200px;
+	display: inline-block;
+}
+#canvas_color_button_container {
+	padding-top: 8px;
+	opacity: 0;
+	transition: opacity 0.3s;
+	transition-timing-function: ease-in;
+	margin-left: 200px;
+	display: inline-block;
+	margin-top: -2px;
+}
+.input {
+	position: fixed;
+	bottom: 25px;
+	margin-left: 100px;
+}
+#pause_button {
+	margin-top: 25px;
+	float: left;
+	margin-left: 25px;
+}
+#canvas_red_button {
+	background-color: #ff0000;
+}
+#canvas_green_button {
+	background-color: #00ff00;
+}
+#canvas_blue_button {
+	background-color: #0000ff;
+}
+#canvas_yellow_button {
+	background-color: #ffff00;
+}
+#canvas_orange_button {
+	background-color: #ff8800;
+}
+#canvas_cyan_button {
+	background-color: #00ffff;
+}
+#canvas_purple_button {
+	background-color: #cc00ff;
+}
+#canvas_white_button {
+	background-color: #ffffff;
+}
+#canvas_gray_button {
+	background-color: #888888;
+}
+#canvas_black_button {
+	background-color: #000000;
+}

@@ -1,0 +1,11 @@
+yarn add react-scripts
+npm install @babel/plugin-proposal-class-properties
+npm install enzyme-adapter-react-16
+npm install enzyme
+npm install sinon
+npm install --save-dev eslint babel-eslint eslint-plugin-react
+
+------ Might be needed in case of error ------
+
+npm install babel-preset-env
+npm install webrtc-adapter

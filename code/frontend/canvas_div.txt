@@ -1,0 +1,41 @@
+
+				//<div id="canvas_container">
+				//	<p>canvas:</p>
+				//	<div id="canvas_control_container">
+				//		<button
+				//			id="canvas_clear_button"
+				//			className="canvas_control"
+				//			onClick={this.canvas_clear.bind(this)}
+				//		>
+				//			clear
+				//		</button>
+				//		<button
+				//			id="canvas_red_button"
+				//			className="canvas_control"
+				//			onClick={() => this.canvas_color("#ff0000")}
+				//		>
+				//			red
+				//		</button>
+				//		<button
+				//			id="canvas_black_button"
+				//			className="canvas_control"
+				//			onClick={() => this.canvas_color("#000000")}
+				//		>
+				//			black
+				//		</button>
+				//		<button
+				//			id="canvas_blue_button"
+				//			className="canvas_control"
+				//			onClick={() => this.canvas_color("#0000ff")}
+				//		>
+				//			blue
+				//		</button>
+				//	</div>
+				//	<canvas
+				//		id="canvas"
+				//		ref="canvas"
+				//		onMouseMove={this.mouse_move.bind(this)}
+				//		onMouseDown={this.mouse_down.bind(this)}
+				//		onMouseUp={this.mouse_up.bind(this)}
+				//	/>
+				//</div>
